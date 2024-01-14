@@ -32,4 +32,5 @@ app.use("/api/users", userRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/categories", categoriesRoute);
 
-app.listen(process.env.PORT);
+app.listen(5000);
+// app.listen(process.env.PORT);
