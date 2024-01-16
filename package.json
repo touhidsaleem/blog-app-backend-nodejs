@@ -10,7 +10,6 @@
   "version": "1.0.0",
   "description": "blog app next and node js",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
