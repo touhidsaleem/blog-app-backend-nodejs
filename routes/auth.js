@@ -19,11 +19,18 @@ router.post("/register", async (req, res) => {
 
 // Login
 router.post("/login", async (req, res) => {
+  console.log(req.body);
   try {
-    const user = await User.findOne({ userName: req.body.userName });
+    let user
+
+    if (req.body.userName.includes('@')) {
+      user = await User.findOne({ email: req.body.userName });
+    } else {
+      user = await User.findOne({ userName: req.body.userName });
+    }
 
     if (!user) {
-      return res.status(400).json("User is not registered");
+      return res.status(400).json({ status: 400, success: false, data: {}, error: ["User is not registered"] });
     }
 
     if (req.body.password != user.password) {
