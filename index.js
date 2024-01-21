@@ -7,8 +7,14 @@ const userRoute = require("./routes/users");
 const postsRoute = require("./routes/posts");
 const categoriesRoute = require("./routes/categories");
 const multer = require("multer");
+const cors = require("cors");
 
 dotenv.config();
+
+app.use(cors({
+  origin: 'http://localhost:3000'
+}))
+
 app.use(express.json());
 
 DbConnect();
