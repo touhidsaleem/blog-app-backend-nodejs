@@ -7,17 +7,17 @@ router.post("/", async (req, res) => {
   let wordsPerMinute = 200
   const { desc, userName, title, photo, categories } = req.body
   const reqDescription = desc.split(' ')
-  console.log('BODY', {
-    desc, userName, title, photo, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
-  });
+  // console.log('BODY', {
+  //   desc, userName, title, photo, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
+  // });
   const newPost = new Post({
     desc, userName, title, photo, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
   });
   try {
     const savedPost = await newPost.save();
-    res.status(200).send(savedPost);
+    res.status(200).send({ status: 200, success: true, data: savedPost, error: [], message: 'Created Post Successfully' });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
   }
 });
 
@@ -34,15 +34,15 @@ router.put("/:id", async (req, res) => {
           },
           { new: true }
         );
-        res.status(200).json(updatedPost);
+        res.status(200).json({ status: 200, success: true, data: updatedPost, error: [], message: 'Updated Post Successfully' });
       } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
       }
     } else {
-      res.status(401).json("You can update only your post!");
+      res.status(401).json({ status: 401, success: false, data: {}, error: ["You can update only your post!"], message: '' });
     }
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
   }
 });
 
@@ -53,25 +53,35 @@ router.delete("/", async (req, res) => {
     if (post.userName === req.body.userName) {
       try {
         await post.deleteOne();
-        res.status(200).json("Post Deleted Successfully!");
+        res.status(200).json({ status: 200, success: true, data: {}, error: [], message: "Post Deleted Successfully!" });
       } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
       }
     } else {
-      res.status(401).json("You can delete only your post!");
+      res.status(401).json({ status: 401, success: false, data: {}, error: ['You can delete only your post!'], message: '' });
     }
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
   }
 });
 
-// GET POST
+// GET POST BY Category
+// router.get("/:id", async (req, res) => {
+//   try {
+//     const post = await Post.findById(req.params.id);
+//     res.status(200).json(post);
+//   } catch (error) { 
+//     res.status(500).json(error);
+//   }
+// });
+
+// GET POST BY ID
 router.get("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    res.status(200).json(post);
+    res.status(200).json({ status: 200, success: true, data: post, error: [], message: "Successfully fetched Post by ID" });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
   }
 });
 
@@ -86,16 +96,14 @@ router.get("/", async (req, res) => {
       posts = await Post.find({ userName });
     } else if (catName) {
       posts = await Post.find({
-        categories: {
-          $in: { catName },
-        },
+        categories: { $in: [catName] },
       });
     } else {
       posts = await Post.find();
     }
-    res.status(200).json(posts);
+    res.status(200).json({ status: 200, success: true, data: posts, error: [], message: 'Fetched Posts Successfully' });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
   }
 });
 

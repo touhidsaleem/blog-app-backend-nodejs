@@ -14,12 +14,12 @@ router.put("/:id", async (req, res) => {
         },
         { new: true }
       );
-      res.status(200).json(updatedUser);
+      res.status(200).json({ status: 200, success: true, data: updatedUser, error: [], message: 'Updated User Successfully' });
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
     }
   } catch (error) {
-    res.status(401).json("Unauthorized");
+    res.status(401).json({ status: 401, success: false, data: {}, error: ["Unauthorized User"], message: '' });
   }
 });
 
@@ -31,12 +31,12 @@ router.delete("/:id", async (req, res) => {
     try {
       await Post.deleteMany({ userName: user.userName });
       await User.findByIdAndDelete(req.params.id);
-      res.status(200).json("User Deleted Successfully!");
+      res.status(200).json({ status: 200, success: true, data: {}, error: [], message: "User Deleted Successfully!" });
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
     }
   } catch (error) {
-    res.status(404).json("User Not Found!");
+    res.status(404).json({ status: 404, success: false, data: {}, error: ["User Not Found!"], message: '' });
   }
   //   } else {
   //     res.status(401).json("Unauthorized");
@@ -48,9 +48,9 @@ router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     const { password, ...restData } = user._doc;
-    res.status(200).json(restData);
+    res.status(200).json({ status: 200, success: true, data: restData, error: [], message: 'Successfully fetched UserData' });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
   }
 });
 
