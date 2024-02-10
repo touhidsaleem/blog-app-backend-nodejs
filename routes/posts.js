@@ -1,17 +1,35 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Jimp = require('jimp');
+const path = require('path');
 
 // Create POST
 router.post("/", async (req, res) => {
   let wordsPerMinute = 200
   const { desc, userName, title, photo, categories } = req.body
   const reqDescription = desc.split(' ')
-  // console.log('BODY', {
-  //   desc, userName, title, photo, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
-  // });
+
+  // Image Base64
+  const buffer = Buffer.from(photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''), 'base64');
+
+  const imagePath = `${Date.now()}-${Math.round(
+    Math.random() * 1e9
+  )}.png`;
+
+  try {
+    const JimpRes = await Jimp.read(buffer);
+    JimpRes.resize(150, Jimp.AUTO).write(path.resolve(__dirname, `../storage/${imagePath}`))
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Error' })
+  }
+
   const newPost = new Post({
-    desc, userName, title, photo, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
+    desc, userName, title, photo: `/storage/${imagePath}`, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
+  });
+
+  console.log('savedPost', {
+    desc, userName, title, photo: `/storage/${imagePath}`, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
   });
   try {
     const savedPost = await newPost.save();
