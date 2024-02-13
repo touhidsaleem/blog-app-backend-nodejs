@@ -4,6 +4,16 @@ const Post = require("../models/Post");
 const Jimp = require('jimp');
 const path = require('path');
 
+// Get Trending Posts
+router.get("/trending", async (req, res) => {
+  try {
+    const posts = await Post.find({ viewCount: { $gt: 10 } }); // Fetch posts where viewCount > 10
+    res.status(200).json({ status: 200, success: true, data: posts, error: [], message: 'Trending Posts with viewCount greater than 10' });
+  } catch (error) {
+    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
+  }
+});
+
 // Create POST
 router.post("/", async (req, res) => {
   let wordsPerMinute = 200
@@ -25,11 +35,11 @@ router.post("/", async (req, res) => {
   }
 
   const newPost = new Post({
-    desc, userName, title, photo: `/storage/${imagePath}`, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
+    desc, userName, title, photo: `/storage/${imagePath}`, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute), viewCount: 0
   });
 
   console.log('savedPost', {
-    desc, userName, title, photo: `/storage/${imagePath}`, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute)
+    desc, userName, title, photo: `/storage/${imagePath}`, categories, readTime: Math.ceil(reqDescription?.length / wordsPerMinute), viewCount: 0
   });
   try {
     const savedPost = await newPost.save();
@@ -83,25 +93,29 @@ router.delete("/", async (req, res) => {
   }
 });
 
-// GET POST BY Category
-// router.get("/:id", async (req, res) => {
-//   try {
-//     const post = await Post.findById(req.params.id);
-//     res.status(200).json(post);
-//   } catch (error) { 
-//     res.status(500).json(error);
-//   }
-// });
-
 // GET POST BY ID
 router.get("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    res.status(200).json({ status: 200, success: true, data: post, error: [], message: "Successfully fetched Post by ID" });
+    if (!post) {
+      return res.status(404).json({ status: 404, success: false, data: {}, error: ['Post not found'], message: '' });
+    } else {
+      try {
+        const updatedPost = await Post.findByIdAndUpdate(
+          req.params.id,
+          { $inc: { viewCount: 1 } }, // Increment viewCount by 1
+          { new: true }
+        );
+        res.status(200).json({ status: 200, success: true, data: updatedPost, error: [], message: 'Fetched Post Successfully' });
+      } catch (err) {
+        res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
+      }
+    }
   } catch (error) {
-    res.status(500).json({ status: 500, success: false, data: {}, error: ['Internal Server Error'], message: '' });
+    res.status(404).json({ status: 404, success: false, data: {}, error: ['Post not found'], message: '' });
   }
 });
+
 
 // Get  All Posts
 router.get("/", async (req, res) => {

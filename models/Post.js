@@ -26,6 +26,7 @@ const PostSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    viewCount: { type: Number, required: true }
   },
   { timestamps: true }
 );
